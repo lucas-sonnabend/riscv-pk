@@ -1,7 +1,5 @@
 // See LICENSE for license details.
 
-#ifdef __riscv_hard_float
-
 #define get_f32(which) fmv.x.s a0, which; jr t0
 #define put_f32(which) fmv.s.x which, a0; jr t0
 #ifdef __riscv64
@@ -155,5 +153,3 @@
     put_f64(f29)
     put_f64(f30)
     put_f64(f31)
-
-#endif

@@ -76,6 +76,15 @@ static void handle_syscall(trapframe_t* tf)
   tf->epc += 4;
 }
 
+static void handle_store_tag(trapframe_t* tf) {
+	dump_tf(tf);
+	tf->epc += 4;
+}
+static void handle_load_tag(trapframe_t* tf) {
+	dump_tf(tf);
+	tf->epc += 4;
+}
+
 static void handle_interrupt(trapframe_t* tf)
 {
   clear_csr(sip, SIP_SSIP);
@@ -98,6 +107,8 @@ void handle_trap(trapframe_t* tf)
     [CAUSE_MISALIGNED_STORE] = handle_misaligned_store,
     [CAUSE_FAULT_LOAD] = handle_fault_load,
     [CAUSE_FAULT_STORE] = handle_fault_store,
+    [CAUSE_LOAD_TAG] = handle_load_tag,
+    [CAUSE_STORE_TAG] = handle_store_tag,
   };
 
   kassert(tf->cause < ARRAY_SIZE(trap_handlers) && trap_handlers[tf->cause]);
