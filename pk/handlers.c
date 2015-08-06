@@ -77,11 +77,13 @@ static void handle_syscall(trapframe_t* tf)
 }
 
 static void handle_store_tag(trapframe_t* tf) {
-	dump_tf(tf);
+	printk("pk trap handler: handle store trap, storing into 0x%lx at pc 0x%lx\n",
+		tf->badvaddr, tf->epc);
 	tf->epc += 4;
 }
 static void handle_load_tag(trapframe_t* tf) {
-	dump_tf(tf);
+	printk("pk trap handler: handle load trap, loading from 0x%lx at pc 0x%lx\n",
+		tf->badvaddr, tf->epc);
 	tf->epc += 4;
 }
 
