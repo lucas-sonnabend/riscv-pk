@@ -24,6 +24,20 @@ trap_table:
   .word bad_trap
   .word bad_trap
 
+#define HANDLE_USER_TRAP_IN_USER_MODE 0       \
+  | (0 << (31- 0)) /* IF misaligned */           \
+  | (0 << (31- 1)) /* IF fault */                \
+  | (0 << (31- 2)) /* illegal instruction */     \
+  | (0 << (31- 3)) /* breakpoint */              \
+  | (0 << (31- 4)) /* load misaligned */         \
+  | (0 << (31- 5)) /* load fault */              \
+  | (0 << (31- 6)) /* store misaligned */        \
+  | (0 << (31- 7)) /* store fault */             \
+  | (0 << (31- 8)) /* user environment call */   \
+  | (0 << (31- 9)) /* super environment call */  \
+
+#define STACK_SIZE (16*4 + 16)
+
 #define HANDLE_USER_TRAP_IN_MACHINE_MODE 0       \
   | (0 << (31- 0)) /* IF misaligned */           \
   | (0 << (31- 1)) /* IF fault */                \
@@ -60,6 +74,12 @@ mentry:
   csrr a0, mcause
   bltz a0, .Linterrupt
 
+  # check whether the trap should be handled in user mode
+  li a1, HANDLE_USER_TRAP_IN_USER_MODE
+  SLL32 a1, a1, a0
+  bltz a1, .Lhandle_trap_in_user_mode
+
+  # check whether the trap should be handled in machine mode
   li a1, HANDLE_USER_TRAP_IN_MACHINE_MODE
   SLL32 a1, a1, a0
   bltz a1, .Lhandle_trap_in_machine_mode
@@ -299,3 +319,14 @@ mentry:
 
   # XXX depend on sbi_base to force its linkage
   la x0, sbi_base
+
+.Lhandle_trap_in_user_mode:
+  # at the moment the user level sp is still in mscratch and a0 and a1 are spilled
+  csrr a0, utvec
+  beqz a0, .Lbad_trap
+
+  LOAD a0, 10*REGBYTES(sp)
+  LOAD a1, 11*REGBYTES(sp)
+  csrrw sp, mscratch, sp
+  mrtu
+

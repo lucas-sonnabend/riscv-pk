@@ -12,6 +12,7 @@ void run_loaded_program(struct mainvars* args)
   extern char trap_entry;
   write_csr(stvec, &trap_entry);
   write_csr(sscratch, 0);
+  write_csr(utvec, 0);
 
   // enter supervisor mode
   asm volatile("la t0, 1f; csrw mepc, t0; eret; 1:" ::: "t0");
