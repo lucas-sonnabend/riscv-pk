@@ -22,8 +22,8 @@
 
 #ifdef __riscv64
 # define SLL32    sllw
-# define STORE    sd
-# define LOAD     ld
+# define STORE    sdct
+# define LOAD     ldct
 # define LOG_REGBYTES 3
 #else
 # define SLL32    sll
